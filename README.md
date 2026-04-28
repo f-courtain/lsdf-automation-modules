@@ -33,8 +33,8 @@ Les releases sont **immuables** : pour rollback, il suffit de réimporter le mod
 
 ## Convention de nommage des Releases
 
-Format : `<Module>/v<SemVer>`, ex :
-- `LSDF.AutomationReports/v1.0.0`
-- `LSDF.AutomationReports/v1.1.0`
+Format : `<Module>-v<SemVer>` (tiret, pas slash, pour éviter les soucis d'URL-encoding), ex :
+- `LSDF.AutomationReports-v1.0.0`
+- `LSDF.AutomationReports-v1.1.0`
 
-Le préfixe par module permet de coexister plusieurs modules dans le même repo sans conflit de tags.
+Le préfixe par module permet à plusieurs modules de coexister dans le même repo sans conflit de tags.
