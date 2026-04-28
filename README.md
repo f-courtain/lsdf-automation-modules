@@ -1,40 +1,28 @@
 # lsdf-automation-modules
 
-Repo public hébergeant les **releases binaires** (.zip) des modules PowerShell partagés utilisés par les runbooks Azure Automation de **LSDF Conseils** et **Serenity Conciergerie**.
+Public host for **binary releases** (`.zip` packages) of PowerShell modules consumed by Azure Automation runbooks.
 
-## Pourquoi un repo public ?
+## Why a public repository?
 
-Les Automation Accounts Azure ne peuvent ingérer un module custom que via une URL HTTP publique (`ContentLinkUri` dans `New-AzAutomationModule`). GitHub Releases fournit cette URL gracieusement, avec versioning natif, historique complet et rollback trivial — sans coût ni infrastructure à maintenir.
+Azure Automation Accounts can only ingest custom PowerShell modules via a publicly accessible HTTP URL (the `ContentLinkUri` parameter of `New-AzAutomationModule`). GitHub Releases provides this URL natively, with versioning, full history, and trivial rollback — at zero cost and with no infrastructure to maintain.
 
-Aucun secret, credential ou information sensible n'est publié ici — uniquement le code source de bibliothèques utilitaires (rendu HTML de rapports, helpers de logging, etc.).
+No secrets, credentials, or sensitive data are published here — only the source of generic utility libraries (HTML rendering helpers, logging helpers, etc.).
 
-## Source de vérité
+## Repository contents
 
-Le **code source** des modules vit dans le repo privé `clients-private`, à `clients/active/lsdf-conseils/automation/lib/<NomModule>/`. Ce repo public ne sert qu'à publier les `.zip` packagés via Releases.
+The `main` branch contains only this README. **Module packages (`.zip` files) are stored as GitHub Release assets** — see the [Releases](../../releases) tab.
 
-## Modules publiés
+## Tag naming convention
 
-| Module | Description | Première version |
-|---|---|---|
-| `LSDF.AutomationReports` | Génération de rapports HTML standardisés pour runbooks Azure Automation (frame commun + 5 briques de contenu paramétrables) | À venir |
+`<ModuleName>-v<SemVer>` (dash separator, not slash, to avoid URL-encoding issues), e.g.:
 
-## Workflow de publication
+- `MyModule-v1.0.0`
+- `MyModule-v1.1.0`
 
-Le script `Publish-AACustomModule.ps1` (dans le repo privé `clients-private`) :
+Prefixing each tag with the module name allows multiple modules to coexist in the same repo without tag collisions.
 
-1. Lit le `.psd1` du module pour récupérer nom + version
-2. Zippe le dossier source
-3. Crée un Release `<Module>/v<Version>` avec le zip en asset (`gh release create`)
-4. Récupère l'URL de l'asset
-5. Importe le module dans l'Automation Account via `Invoke-AzRestMethod PUT` avec `ContentLink.uri = URL`
-6. Poll `ProvisioningState` jusqu'à `Succeeded`
+## Publication workflow
 
-Les releases sont **immuables** : pour rollback, il suffit de réimporter le module depuis l'URL d'un ancien tag.
+A private deployment script reads the module's `.psd1` manifest, packages it as a `.zip`, and creates a corresponding GitHub Release with the asset attached. The asset's stable download URL is then passed to `New-AzAutomationModule -ContentLinkUri` for ingestion into the target Automation Account.
 
-## Convention de nommage des Releases
-
-Format : `<Module>-v<SemVer>` (tiret, pas slash, pour éviter les soucis d'URL-encoding), ex :
-- `LSDF.AutomationReports-v1.0.0`
-- `LSDF.AutomationReports-v1.1.0`
-
-Le préfixe par module permet à plusieurs modules de coexister dans le même repo sans conflit de tags.
+Releases are **immutable**: rolling back to an earlier version is done by simply re-importing the module from the URL of an older tag.
